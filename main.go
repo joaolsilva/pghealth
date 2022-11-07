@@ -45,7 +45,8 @@ func main() {
 				tview.NewTableCell(cellText).
 					SetTextColor(tcell.ColorWhite).
 					SetAlign(tview.AlignCenter).
-					SetSelectable(true))
+					SetSelectable(true).
+					SetReference(&d))
 		}
 	}
 
@@ -56,14 +57,33 @@ func main() {
 			app.Stop()
 		}
 	}).SetSelectedFunc(func(row int, column int) {
-		// Selected row
+		dbRef := table.GetCell(row, column).GetReference()
+		if dbRef != nil {
+			if database, ok := dbRef.(*postgres.Database); ok {
+				// database.Name selected
+				_ = database
+			}
+		}
+	}).SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
+		if event.Key() == tcell.KeyRune && event.Rune() == 'q' {
+			app.Stop()
+			return nil
+		}
+		return event
 	})
 
-	layout := tview.NewFlex().
-		SetDirection(tview.FlexRow).
-		AddItem(table, 0, 1, true)
+	helpInfo := tview.NewTextView().
+		SetText(" Press Ctrl-C to exit")
 
-	if err := app.SetRoot(layout, true).EnableMouse(true).Run(); err != nil {
+	dbListView := tview.NewFlex().
+		SetDirection(tview.FlexRow).
+		AddItem(table, 0, 1, true).
+		AddItem(helpInfo, 1, 1, false)
+
+	pages := tview.NewPages()
+	pages.AddAndSwitchToPage("dbList", dbListView, true)
+
+	if err := app.SetRoot(pages, true).EnableMouse(true).Run(); err != nil {
 		panic(err)
 	}
 }
