@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"fmt"
 	"github.com/gdamore/tcell/v2"
 	"github.com/joaolsilva/pghealth/pkg/postgres"
 	"github.com/rivo/tview"
@@ -13,7 +14,7 @@ func dbListView() (view tview.Primitive) {
 		SetSelectable(true, false)
 
 	// Table heading
-	tableColumns := []string{"Database", "Size"}
+	tableColumns := []string{"Database", "Commit Ratio", "Cache Ratio", "Blocks Read", "Size"}
 	for i, col := range tableColumns {
 		table.SetCell(0, i,
 			tview.NewTableCell(col).
@@ -38,7 +39,13 @@ func dbListView() (view tview.Primitive) {
 		for c := 0; c < len(tableColumns); c++ {
 			if c == 0 {
 				cellText = d.Name
-			} else {
+			} else if c == 1 {
+				cellText = d.CommitRatio
+			} else if c == 2 {
+				cellText = d.CacheHitRation
+			} else if c == 3 {
+				cellText = fmt.Sprintf("%v", d.BlocksRead)
+			} else if c == 4 {
 				cellText = d.FormattedSize
 			}
 			table.SetCell(r+1, c,
@@ -74,7 +81,7 @@ func dbListView() (view tview.Primitive) {
 	})
 
 	table.SetMouseCapture(func(action tview.MouseAction, event *tcell.EventMouse) (tview.MouseAction, *tcell.EventMouse) {
-		log.Printf("Mouse capture %v %v", action, event)
+		//log.Printf("Mouse capture %v %v", action, event)
 		return action, event
 	})
 
