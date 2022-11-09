@@ -11,7 +11,10 @@ import (
 func dbListView() (view tview.Primitive) {
 	table := tview.NewTable().
 		SetFixed(1, 1).
-		SetSelectable(true, false)
+		SetSelectable(true, false).
+		SetSeparator(tview.Borders.Vertical)
+
+	table.SetBorderPadding(0, 0, 1, 1)
 
 	// Table heading
 	tableColumns := []string{"Database", "Commit Ratio", "Cache Ratio", "Blocks Read", "Size"}
@@ -34,11 +37,14 @@ func dbListView() (view tview.Primitive) {
 		panic(err)
 	}
 	var cellText string
+	var alignment int
 	for r, d := range databases {
 		d := d
 		for c := 0; c < len(tableColumns); c++ {
+			alignment = tview.AlignRight
 			if c == 0 {
 				cellText = d.Name
+				alignment = tview.AlignLeft
 			} else if c == 1 {
 				cellText = d.CommitRatio
 			} else if c == 2 {
@@ -51,7 +57,7 @@ func dbListView() (view tview.Primitive) {
 			table.SetCell(r+1, c,
 				tview.NewTableCell(cellText).
 					SetTextColor(tcell.ColorWhite).
-					SetAlign(tview.AlignCenter).
+					SetAlign(alignment).
 					SetSelectable(true).
 					SetReference(&d))
 		}
