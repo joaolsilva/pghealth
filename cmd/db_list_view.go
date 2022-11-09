@@ -43,7 +43,7 @@ func dbListView() (view tview.Primitive) {
 		for c := 0; c < len(tableColumns); c++ {
 			alignment = tview.AlignRight
 			if c == 0 {
-				cellText = d.Name
+				cellText = string(d.Name)
 				alignment = tview.AlignLeft
 			} else if c == 1 {
 				cellText = d.CommitRatio
