@@ -1,8 +1,8 @@
 package postgres
 
 import (
-	"database/sql"
 	"fmt"
+	"github.com/jmoiron/sqlx"
 	_ "github.com/lib/pq"
 	"time"
 )
@@ -12,20 +12,20 @@ type DatabaseName string
 const defaultDatabase DatabaseName = "postgres"
 
 type DBConnection struct {
-	db *sql.DB
+	db *sqlx.DB
 }
 
 type Database struct {
-	Name           DatabaseName
-	Size           int
-	FormattedSize  string
-	CommitRatio    string
-	CacheHitRation string
-	BlocksRead     int
+	Name           DatabaseName `db:"datname"`
+	Size           int          `db:"size"`
+	FormattedSize  string       `db:"formatted_size"`
+	CommitRatio    string       `db:"commit_ratio"`
+	CacheHitRation string       `db:"cache_hit_ratio"`
+	BlocksRead     int          `db:"blks_read"`
 }
 
-func connectToDB(dbName DatabaseName) (db *sql.DB, err error) {
-	db, err = sql.Open("postgres", fmt.Sprintf("host=localhost port=5432 dbname=%v sslmode=disable", dbName))
+func connectToDB(dbName DatabaseName) (db *sqlx.DB, err error) {
+	db, err = sqlx.Open("postgres", fmt.Sprintf("host=localhost port=5432 dbname=%v sslmode=disable", dbName))
 	if err != nil {
 		return db, err
 	}
@@ -42,16 +42,16 @@ func NewDBConnection(dbName DatabaseName) (*DBConnection, error) {
 }
 
 type Bloat struct {
-	Type       string
-	SchemaName string
-	ObjectName string
-	Bloat      string
-	Waste      string
+	Type       string `db:"type"`
+	SchemaName string `db:"schemaname"`
+	ObjectName string `db:"object_name"`
+	Bloat      string `db:"bloat"`
+	Waste      string `db:"waste"`
 }
 
 func (dbConnection *DBConnection) ListBloat() (bloat []Bloat, err error) {
 	bloat = []Bloat{}
-	rows, err := dbConnection.db.Query(`
+	err = dbConnection.db.Select(&bloat, `
 WITH constants AS (
   SELECT current_setting('block_size')::numeric AS bs, 23 AS hdr, 4 AS ma
 ), bloat_info AS (
@@ -113,18 +113,5 @@ FROM
   index_bloat) bloat_summary
 ORDER BY raw_waste DESC, bloat DESC;
 `)
-	if err != nil {
-		return bloat, err
-	}
-	defer rows.Close()
-	for rows.Next() {
-		b := Bloat{}
-		err = rows.Scan(&b.Type, &b.SchemaName, &b.ObjectName, &b.Bloat, &b.Waste)
-		if err != nil {
-			return bloat, err
-		}
-		bloat = append(bloat, b)
-	}
-
-	return bloat, nil
+	return bloat, err
 }
