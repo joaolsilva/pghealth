@@ -67,5 +67,19 @@ func tableForList[T any](title string, list []T) (table *tview.Table, err error)
 		}
 	}
 
+	table.SetDoneFunc(func(key tcell.Key) {
+		if key == tcell.KeyEscape {
+			app.Pop()
+		}
+	})
+
+	table.SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
+		if event.Key() == tcell.KeyEscape || (event.Key() == tcell.KeyRune && event.Rune() == 'q') {
+			app.Pop()
+			return nil
+		}
+		return event
+	})
+
 	return table, nil
 }

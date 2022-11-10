@@ -18,7 +18,7 @@ type DBConnection struct {
 type Database struct {
 	Name           DatabaseName `db:"datname"`
 	Size           int          `db:"size" table:"-"`
-	FormattedSize  string       `db:"formatted_size" table:"Formatted Size"`
+	FormattedSize  string       `db:"formatted_size" table:"Size"`
 	CommitRatio    string       `db:"commit_ratio" table:"Commit Ratio"`
 	CacheHitRation string       `db:"cache_hit_ratio" table:"Cache Hit Ratio"`
 	BlocksRead     int          `db:"blks_read" table:"Blocks Read"`
