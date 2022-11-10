@@ -42,6 +42,7 @@ func tableForList[T any](title string, list []T) (table *tview.Table, err error)
 	}
 
 	for r, e := range list {
+		e := e
 		elem := reflect.ValueOf(e)
 		col := 0
 		for i := 0; i < nFields; i++ {
