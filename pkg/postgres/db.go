@@ -17,11 +17,11 @@ type DBConnection struct {
 
 type Database struct {
 	Name           DatabaseName `db:"datname"`
-	Size           int          `db:"size"`
-	FormattedSize  string       `db:"formatted_size"`
-	CommitRatio    string       `db:"commit_ratio"`
-	CacheHitRation string       `db:"cache_hit_ratio"`
-	BlocksRead     int          `db:"blks_read"`
+	Size           int          `db:"size" table:"-"`
+	FormattedSize  string       `db:"formatted_size" table:"Formatted Size"`
+	CommitRatio    string       `db:"commit_ratio" table:"Commit Ratio"`
+	CacheHitRation string       `db:"cache_hit_ratio" table:"Cache Hit Ratio"`
+	BlocksRead     int          `db:"blks_read" table:"Blocks Read"`
 }
 
 func connectToDB(dbName DatabaseName) (db *sqlx.DB, err error) {
@@ -43,8 +43,8 @@ func NewDBConnection(dbName DatabaseName) (*DBConnection, error) {
 
 type Bloat struct {
 	Type       string `db:"type"`
-	SchemaName string `db:"schemaname"`
-	ObjectName string `db:"object_name"`
+	SchemaName string `db:"schemaname" table:"Schema Name"`
+	ObjectName string `db:"object_name" table:"Object Name"`
 	Bloat      string `db:"bloat"`
 	Waste      string `db:"waste"`
 }

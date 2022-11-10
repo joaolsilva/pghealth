@@ -1,7 +1,6 @@
 package cmd
 
 import (
-	"fmt"
 	"github.com/gdamore/tcell/v2"
 	"github.com/joaolsilva/pghealth/pkg/postgres"
 	"github.com/rivo/tview"
@@ -9,23 +8,6 @@ import (
 )
 
 func dbListView() (view tview.Primitive) {
-	table := tview.NewTable().
-		SetFixed(1, 1).
-		SetSelectable(true, false).
-		SetSeparator(tview.Borders.Vertical)
-
-	table.SetBorderPadding(0, 0, 1, 1)
-
-	// Table heading
-	tableColumns := []string{"Database", "Commit Ratio", "Cache Ratio", "Blocks Read", "Size"}
-	for i, col := range tableColumns {
-		table.SetCell(0, i,
-			tview.NewTableCell(col).
-				SetTextColor(tcell.ColorYellow).
-				SetAlign(tview.AlignCenter).
-				SetSelectable(false))
-	}
-
 	pg, err := postgres.NewPG()
 	if err != nil {
 		log.Printf("%v", err)
@@ -36,34 +18,8 @@ func dbListView() (view tview.Primitive) {
 		log.Printf("pghealth: %v", err)
 		panic(err)
 	}
-	var cellText string
-	var alignment int
-	for r, d := range databases {
-		d := d
-		for c := 0; c < len(tableColumns); c++ {
-			alignment = tview.AlignRight
-			if c == 0 {
-				cellText = string(d.Name)
-				alignment = tview.AlignLeft
-			} else if c == 1 {
-				cellText = d.CommitRatio
-			} else if c == 2 {
-				cellText = d.CacheHitRation
-			} else if c == 3 {
-				cellText = fmt.Sprintf("%v", d.BlocksRead)
-			} else if c == 4 {
-				cellText = d.FormattedSize
-			}
-			table.SetCell(r+1, c,
-				tview.NewTableCell(cellText).
-					SetTextColor(tcell.ColorWhite).
-					SetAlign(alignment).
-					SetSelectable(true).
-					SetReference(&d))
-		}
-	}
 
-	table.SetBorder(true).SetTitle("pghealth")
+	table, err := tableForList("pghealth", databases)
 
 	table.SetDoneFunc(func(key tcell.Key) {
 		if key == tcell.KeyEscape {
