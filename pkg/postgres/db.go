@@ -25,6 +25,7 @@ type Database struct {
 }
 
 func connectToDB(dbName DatabaseName) (db *sqlx.DB, err error) {
+	//db, err = sqlx.Open("postgres", fmt.Sprintf("postgres:///%v?host=/var/run/postgresql/&user=postgres", dbName))
 	db, err = sqlx.Open("postgres", fmt.Sprintf("host=localhost port=5432 dbname=%v sslmode=disable", dbName))
 	if err != nil {
 		return db, err
