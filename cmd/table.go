@@ -17,11 +17,12 @@ func tableForList[T any](title string, list []T) (table *tview.Table, err error)
 		SetBorder(true).
 		SetTitle(title)
 
-	if len(list) == 0 {
-		return table, nil
+	var elem reflect.Value
+	if len(list) > 0 {
+		elem = reflect.ValueOf(list[0])
+	} else {
+		elem = reflect.ValueOf(*new(T))
 	}
-
-	elem := reflect.ValueOf(list[0])
 	nFields := elem.NumField()
 	col := 0
 	for i := 0; i < nFields; i++ {

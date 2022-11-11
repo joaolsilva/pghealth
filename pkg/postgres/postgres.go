@@ -9,6 +9,12 @@ type PG struct {
 	db *sqlx.DB
 }
 
+func (pg *PG) Close() {
+	if pg.db != nil {
+		pg.db.Close()
+	}
+}
+
 func NewPG() (*PG, error) {
 	pg := PG{}
 	db, err := connectToDB(defaultDatabase)

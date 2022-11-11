@@ -7,13 +7,30 @@ import (
 	"log"
 )
 
-func dbListView() (view tview.Primitive) {
-	pg, err := postgres.NewPG()
+type DatabaseListView struct {
+	pg   *postgres.PG
+	view tview.Primitive
+}
+
+func (dbListView *DatabaseListView) GetPrimitive() tview.Primitive {
+	return dbListView.view
+}
+
+func (dbListView *DatabaseListView) Close() {
+	if dbListView.pg != nil {
+		dbListView.pg.Close()
+	}
+}
+
+func NewDatabaseListView() (databaseListView *DatabaseListView) {
+	databaseListView = &DatabaseListView{}
+	var err error
+	databaseListView.pg, err = postgres.NewPG()
 	if err != nil {
 		log.Printf("%v", err)
 		panic(err)
 	}
-	databases, err := pg.ListDatabases()
+	databases, err := databaseListView.pg.ListDatabases()
 	if err != nil {
 		log.Printf("pghealth: %v", err)
 		panic(err)
@@ -29,7 +46,7 @@ func dbListView() (view tview.Primitive) {
 		dbRef := table.GetCell(row, column).GetReference()
 		if dbRef != nil {
 			if database, ok := dbRef.(*postgres.Database); ok {
-				app.Push(dbDetailView(database))
+				app.Push(NewDatabaseDetailView(database))
 			}
 		}
 	})
@@ -50,10 +67,10 @@ func dbListView() (view tview.Primitive) {
 	helpInfo := tview.NewTextView().
 		SetText(" Press Ctrl-C to exit")
 
-	view = tview.NewFlex().
+	databaseListView.view = tview.NewFlex().
 		SetDirection(tview.FlexRow).
 		AddItem(table, 0, 1, true).
 		AddItem(helpInfo, 1, 1, false)
 
-	return view
+	return databaseListView
 }

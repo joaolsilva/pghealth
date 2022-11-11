@@ -24,6 +24,12 @@ type Database struct {
 	BlocksRead     int          `db:"blks_read" table:"Blocks Read"`
 }
 
+func (dbConnection *DBConnection) Close() {
+	if dbConnection.db != nil {
+		dbConnection.db.Close()
+	}
+}
+
 func connectToDB(dbName DatabaseName) (db *sqlx.DB, err error) {
 	//db, err = sqlx.Open("postgres", fmt.Sprintf("postgres:///%v?host=/var/run/postgresql/&user=postgres", dbName))
 	db, err = sqlx.Open("postgres", fmt.Sprintf("host=localhost port=5432 dbname=%v sslmode=disable", dbName))
@@ -31,6 +37,8 @@ func connectToDB(dbName DatabaseName) (db *sqlx.DB, err error) {
 		return db, err
 	}
 	db.SetConnMaxLifetime(10 * time.Minute)
+	db.SetMaxOpenConns(1)
+	db.SetMaxIdleConns(1)
 	_, err = db.Exec("SET default_transaction_read_only = on;")
 	return db, err
 }
