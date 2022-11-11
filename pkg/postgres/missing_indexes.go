@@ -13,11 +13,11 @@ func (dbConnection *DBConnection) GetMissingIndexes() (missingIndexes []MissingI
 	missingIndexes = []MissingIndexes{}
 	err = dbConnection.db.Select(&missingIndexes, `SELECT
        relname,
-       seq_scan-idx_scan AS too_much_seq,
-       case when seq_scan-idx_scan>0 THEN 'Missing Index?' ELSE 'OK' END AS missing_index,
+       COALESCE(seq_scan, 0) - COALESCE(idx_scan, 0) AS too_much_seq,
+       case when COALESCE(seq_scan, 0) -COALESCE(idx_scan, 0)>0 THEN 'Missing Index?' ELSE 'OK' END AS missing_index,
        pg_size_pretty(pg_relation_size(relname::regclass)) AS rel_size,
-       seq_scan,
-       idx_scan
+       COALESCE(seq_scan, 0) AS seq_scan,
+       COALESCE(idx_scan, 0) AS idx_scan
 FROM
      pg_stat_all_tables
 WHERE
