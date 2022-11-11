@@ -68,6 +68,30 @@ func tableForList[T any](title string, list []T) (table *tview.Table, err error)
 		}
 	}
 
+	table.SetDrawFunc(func(screen tcell.Screen, x, y, width, height int) (int, int, int, int) {
+		row, _ := table.GetSelection()
+		if table.GetRowCount() > 1 && row == 0 {
+			row = 1
+		}
+
+		if row > table.GetRowCount()-1 {
+			row = table.GetRowCount() - 1
+		}
+
+		rowLabel := fmt.Sprintf(" %v / %v ", row, table.GetRowCount()-1)
+		x, y, w, h := table.GetRect()
+		rowLabelX := x + w - len(rowLabel) - 4
+		if rowLabelX < x {
+			rowLabelX = x
+		}
+		rowLabelWidth := len(rowLabel)
+		if rowLabelX+rowLabelWidth > x+w {
+			rowLabelWidth = x + w - rowLabelX
+		}
+		tview.Print(screen, rowLabel, rowLabelX, y+h-1, rowLabelWidth, tview.AlignLeft, tcell.ColorWhite)
+		return x + 1, y + 1, width - 2, height - 2
+	})
+
 	table.SetDoneFunc(func(key tcell.Key) {
 		if key == tcell.KeyEscape {
 			app.Pop()
