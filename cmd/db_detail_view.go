@@ -38,11 +38,19 @@ func dbDetailView(db *postgres.Database) (view tview.Primitive) {
 	}
 	cacheHitRatioTable, err := tableForList("Cache Hit Ratio", tableCacheHitRatio)
 
+	missingIndexes, err := dbConnection.GetMissingIndexes()
+	if err != nil {
+		log.Printf("pghealth: %v", err)
+		panic(err)
+	}
+	missingIndexesTable, err := tableForList("Missing Indexes?", missingIndexes)
+
 	currentPage = 0
 	pages := tview.NewPages()
 	pages.AddPage("page-0", cacheHitRatioTable, true, true)
-	pages.AddPage("page-1", bloatTable, true, false)
-	pages.AddPage("page-2", vacuumStatsTable, true, false)
+	pages.AddPage("page-1", missingIndexesTable, true, false)
+	pages.AddPage("page-2", bloatTable, true, false)
+	pages.AddPage("page-3", vacuumStatsTable, true, false)
 	pages.SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
 		if event.Key() == tcell.KeyCtrlN {
 			if currentPage < (pages.GetPageCount() - 1) {
