@@ -38,35 +38,35 @@ func NewDatabaseDetailView(db *postgres.Database) (dbDetailView *DatabaseDetailV
 		log.Printf("pghealth: %v", err)
 		panic(err)
 	}
-	activityTable, err := tableForList("Activity", activity)
+	activityTable, err := tableForList(string(db.Name)+": Activity", activity)
 
 	bloat, err := dbDetailView.dbConnection.ListBloat()
 	if err != nil {
 		log.Printf("pghealth: %v", err)
 		panic(err)
 	}
-	bloatTable, err := tableForList("Bloat", bloat)
+	bloatTable, err := tableForList(string(db.Name)+": Bloat", bloat)
 
 	vacuumStats, err := dbDetailView.dbConnection.GetVacuumStats()
 	if err != nil {
 		log.Printf("pghealth: %v", err)
 		panic(err)
 	}
-	vacuumStatsTable, err := tableForList("Vacuum Stats", vacuumStats)
+	vacuumStatsTable, err := tableForList(string(db.Name)+": Vacuum Stats", vacuumStats)
 
 	tableCacheHitRatio, err := dbDetailView.dbConnection.GetTableCacheHitRatio()
 	if err != nil {
 		log.Printf("pghealth: %v", err)
 		panic(err)
 	}
-	cacheHitRatioTable, err := tableForList("Cache Hit Ratio", tableCacheHitRatio)
+	cacheHitRatioTable, err := tableForList(string(db.Name)+": Cache Hit Ratio", tableCacheHitRatio)
 
 	missingIndexes, err := dbDetailView.dbConnection.GetMissingIndexes()
 	if err != nil {
 		log.Printf("pghealth: %v", err)
 		panic(err)
 	}
-	missingIndexesTable, err := tableForList("Missing Indexes?", missingIndexes)
+	missingIndexesTable, err := tableForList(string(db.Name)+": Missing Indexes?", missingIndexes)
 
 	dbDetailView.currentPage = 0
 	pages := tview.NewPages()

@@ -5,10 +5,18 @@ import (
 	"github.com/gdamore/tcell/v2"
 	"github.com/rivo/tview"
 	"reflect"
+	"strings"
 )
 
 func tableForList[T any](title string, list []T) (table *tview.Table, err error) {
 	table = tview.NewTable()
+
+	if !strings.HasPrefix(title, " ") {
+		title = " " + title
+	}
+	if !strings.HasSuffix(title, " ") {
+		title = title + " "
+	}
 
 	table.SetFixed(1, 1).
 		SetSelectable(true, false).

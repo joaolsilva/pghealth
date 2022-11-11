@@ -36,7 +36,7 @@ func NewDatabaseListView() (databaseListView *DatabaseListView) {
 		panic(err)
 	}
 
-	table, err := tableForList("pghealth", databases)
+	table, err := tableForList(" pghealth ", databases)
 
 	table.SetDoneFunc(func(key tcell.Key) {
 		if key == tcell.KeyEscape {
