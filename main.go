@@ -2,6 +2,7 @@ package main
 
 import (
 	"github.com/joaolsilva/pghealth/cmd"
+	"log"
 	"os"
 	"syscall"
 )
@@ -25,7 +26,7 @@ func dropRootPrivileges() (err error) {
 
 func main() {
 	if err := dropRootPrivileges(); err != nil {
-		panic(err)
+		log.Printf("WARNING: Unable to drop root privileges: %v", err)
 	}
 	if err := cmd.Execute(); err != nil {
 		os.Exit(1)
