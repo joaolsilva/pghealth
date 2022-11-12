@@ -82,6 +82,13 @@ func NewDatabaseDetailView(db *postgres.Database) (dbDetailView *DatabaseDetailV
 	}
 	tableSizesTable, err := tableForList(string(db.Name)+": Table Size", tableSizes)
 
+	activeLocks, err := dbDetailView.dbConnection.GetActiveLocks()
+	if err != nil {
+		log.Printf("pghealth: %v", err)
+		panic(err)
+	}
+	activeLocksTable, err := tableForList(string(db.Name)+": Active Locks", activeLocks)
+
 	dbDetailView.currentPage = 0
 	pages := tview.NewPages()
 	pages.AddPage("page-0", activityTable, true, true)
@@ -90,7 +97,8 @@ func NewDatabaseDetailView(db *postgres.Database) (dbDetailView *DatabaseDetailV
 	pages.AddPage("page-3", uselessIndexesTable, true, false)
 	pages.AddPage("page-4", tableSizesTable, true, false)
 	pages.AddPage("page-5", bloatTable, true, false)
-	pages.AddPage("page-6", vacuumStatsTable, true, false)
+	pages.AddPage("page-6", activeLocksTable, true, false)
+	pages.AddPage("page-7", vacuumStatsTable, true, false)
 	pages.SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
 		if event.Key() == tcell.KeyCtrlN {
 			if dbDetailView.currentPage < (pages.GetPageCount() - 1) {
