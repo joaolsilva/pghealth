@@ -1,14 +1,14 @@
 package postgres
 
-type UselessIndexes struct {
+type UselessIndex struct {
 	Table      string `db:"table"`
 	Index      string `db:"index"`
 	IndexSize  string `db:"index_size" table:"Index Size"`
 	IndexScans int    `db:"index_scans" table:"Index Scans"`
 }
 
-func (dbConnection *DBConnection) GetUselessIndexes() (uselessIndexes []UselessIndexes, err error) {
-	uselessIndexes = []UselessIndexes{}
+func (dbConnection *DBConnection) GetUselessIndexes() (uselessIndexes []UselessIndex, err error) {
+	uselessIndexes = []UselessIndex{}
 	err = dbConnection.db.Select(&uselessIndexes, `
 SELECT
        schemaname || '.' || relname AS table,

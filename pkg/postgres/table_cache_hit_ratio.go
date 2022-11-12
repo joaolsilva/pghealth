@@ -8,9 +8,9 @@ type TableCacheHitRatio struct {
 	TotalHits        int    `db:"total_hits" table:"Total Hits"`
 }
 
-func (dbConnection *DBConnection) GetTableCacheHitRatio() (tableCacheHitRatio []TableCacheHitRatio, err error) {
-	tableCacheHitRatio = []TableCacheHitRatio{}
-	err = dbConnection.db.Select(&tableCacheHitRatio, `
+func (dbConnection *DBConnection) GetTableCacheHitRatios() (tableCacheHitRatios []TableCacheHitRatio, err error) {
+	tableCacheHitRatios = []TableCacheHitRatio{}
+	err = dbConnection.db.Select(&tableCacheHitRatios, `
 
 WITH
 all_tables as
@@ -43,5 +43,5 @@ SELECT  table_name,
 FROM    (SELECT * FROM all_tables UNION ALL SELECT * FROM tables) a
 ORDER   BY (case when table_name = 'all' then 0 else 1 end), from_disk desc;
 `)
-	return tableCacheHitRatio, err
+	return tableCacheHitRatios, err
 }

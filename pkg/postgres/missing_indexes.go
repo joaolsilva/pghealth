@@ -1,6 +1,6 @@
 package postgres
 
-type MissingIndexes struct {
+type MissingIndex struct {
 	RelationName    string `db:"relname"`
 	TooMuchSeq      int    `db:"too_much_seq" table:"Too Much Seq"`
 	MissingIndex    string `db:"missing_index" table:"Missing Index?"`
@@ -9,8 +9,8 @@ type MissingIndexes struct {
 	IndexScans      int    `db:"idx_scan" table:"Index Scans"`
 }
 
-func (dbConnection *DBConnection) GetMissingIndexes() (missingIndexes []MissingIndexes, err error) {
-	missingIndexes = []MissingIndexes{}
+func (dbConnection *DBConnection) GetMissingIndexes() (missingIndexes []MissingIndex, err error) {
+	missingIndexes = []MissingIndex{}
 	err = dbConnection.db.Select(&missingIndexes, `SELECT
        relname,
        COALESCE(seq_scan, 0) - COALESCE(idx_scan, 0) AS too_much_seq,

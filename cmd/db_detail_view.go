@@ -54,12 +54,12 @@ func NewDatabaseDetailView(db *postgres.Database) (dbDetailView *DatabaseDetailV
 	}
 	vacuumStatsTable, err := tableForList(string(db.Name)+": Vacuum Stats", vacuumStats)
 
-	tableCacheHitRatio, err := dbDetailView.dbConnection.GetTableCacheHitRatio()
+	tableCacheHitRatios, err := dbDetailView.dbConnection.GetTableCacheHitRatios()
 	if err != nil {
 		log.Printf("pghealth: %v", err)
 		panic(err)
 	}
-	cacheHitRatioTable, err := tableForList(string(db.Name)+": Cache Hit Ratio", tableCacheHitRatio)
+	cacheHitRatiosTable, err := tableForList(string(db.Name)+": Cache Hit Ratio", tableCacheHitRatios)
 
 	missingIndexes, err := dbDetailView.dbConnection.GetMissingIndexes()
 	if err != nil {
@@ -75,14 +75,22 @@ func NewDatabaseDetailView(db *postgres.Database) (dbDetailView *DatabaseDetailV
 	}
 	uselessIndexesTable, err := tableForList(string(db.Name)+": Useless Indexes?", uselessIndexes)
 
+	tableSizes, err := dbDetailView.dbConnection.GetTableSizes()
+	if err != nil {
+		log.Printf("pghealth: %v", err)
+		panic(err)
+	}
+	tableSizesTable, err := tableForList(string(db.Name)+": Table Size", tableSizes)
+
 	dbDetailView.currentPage = 0
 	pages := tview.NewPages()
 	pages.AddPage("page-0", activityTable, true, true)
-	pages.AddPage("page-1", cacheHitRatioTable, true, false)
+	pages.AddPage("page-1", cacheHitRatiosTable, true, false)
 	pages.AddPage("page-2", missingIndexesTable, true, false)
 	pages.AddPage("page-3", uselessIndexesTable, true, false)
-	pages.AddPage("page-4", bloatTable, true, false)
-	pages.AddPage("page-5", vacuumStatsTable, true, false)
+	pages.AddPage("page-4", tableSizesTable, true, false)
+	pages.AddPage("page-5", bloatTable, true, false)
+	pages.AddPage("page-6", vacuumStatsTable, true, false)
 	pages.SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
 		if event.Key() == tcell.KeyCtrlN {
 			if dbDetailView.currentPage < (pages.GetPageCount() - 1) {

@@ -1,6 +1,6 @@
 package postgres
 
-type VacuumStats struct {
+type VacuumStat struct {
 	Table               string `db:"table"`
 	LastVacuum          string `db:"last_vacuum" table:"Last Vacuum"`
 	LastAutoVacuum      string `db:"last_autovacuum" table:"Last Auto-Vacuum"`
@@ -11,8 +11,8 @@ type VacuumStats struct {
 	WillVacuum          string `db:"will_vacuum" table:"Will Vacuum"`
 }
 
-func (dbConnection *DBConnection) GetVacuumStats() (vacuumStats []VacuumStats, err error) {
-	vacuumStats = []VacuumStats{}
+func (dbConnection *DBConnection) GetVacuumStats() (vacuumStats []VacuumStat, err error) {
+	vacuumStats = []VacuumStat{}
 	err = dbConnection.db.Select(&vacuumStats, `
 WITH table_opts AS (
   SELECT
