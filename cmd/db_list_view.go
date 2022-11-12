@@ -65,7 +65,7 @@ func NewDatabaseListView() (databaseListView *DatabaseListView) {
 	})
 
 	helpInfo := tview.NewTextView().
-		SetText(" Press Ctrl-C to exit")
+		SetText(" Esc - quit\tEnter - select database")
 
 	databaseListView.view = tview.NewFlex().
 		SetDirection(tview.FlexRow).

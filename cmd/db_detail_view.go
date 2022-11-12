@@ -68,13 +68,21 @@ func NewDatabaseDetailView(db *postgres.Database) (dbDetailView *DatabaseDetailV
 	}
 	missingIndexesTable, err := tableForList(string(db.Name)+": Missing Indexes?", missingIndexes)
 
+	uselessIndexes, err := dbDetailView.dbConnection.GetUselessIndexes()
+	if err != nil {
+		log.Printf("pghealth: %v", err)
+		panic(err)
+	}
+	uselessIndexesTable, err := tableForList(string(db.Name)+": Useless Indexes?", uselessIndexes)
+
 	dbDetailView.currentPage = 0
 	pages := tview.NewPages()
 	pages.AddPage("page-0", activityTable, true, true)
 	pages.AddPage("page-1", cacheHitRatioTable, true, false)
 	pages.AddPage("page-2", missingIndexesTable, true, false)
-	pages.AddPage("page-3", bloatTable, true, false)
-	pages.AddPage("page-4", vacuumStatsTable, true, false)
+	pages.AddPage("page-3", uselessIndexesTable, true, false)
+	pages.AddPage("page-4", bloatTable, true, false)
+	pages.AddPage("page-5", vacuumStatsTable, true, false)
 	pages.SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
 		if event.Key() == tcell.KeyCtrlN {
 			if dbDetailView.currentPage < (pages.GetPageCount() - 1) {
@@ -98,7 +106,7 @@ func NewDatabaseDetailView(db *postgres.Database) (dbDetailView *DatabaseDetailV
 		return event
 	})
 	helpInfo := tview.NewTextView().
-		SetText(" Press Ctrl-C to exit")
+		SetText(" Esc - back\tCtrl-N - next panel\tCtrl-P - previous panel")
 
 	dbDetailView.view = tview.NewFlex().
 		SetDirection(tview.FlexRow).
